@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title></title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
+    rel="stylesheet">
+  <script src="https://inorganik.github.io/countUp.js/dist/countUp.umd.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tsparticles/confetti@3.0.3/tsparticles.confetti.bundle.min.js"></script>
+</head>
+
+<body>
+  <script>
+    const API_KEY = 'AIzaSyDI6PI7ED6A3G5GKu9ETd3WJBRs0hNRpaI'
+    const CHANNEL_ID = 'UCPVUQl_1srhOtImN3scWoTg'
+    const URL = `https://www.googleapis.com/youtube/v3/channels?part=statistics,brandingSettings&id=${CHANNEL_ID}&key=${API_KEY}`
+
+    fetch(URL)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Request failed')
+        }
+        return response.json()
+      })
+      .then(data => {
+        const channel = data.items[0]
+        const channelElement = document.getElementById("channel")
+        const channelTitle = channel.brandingSettings.channel.title
+        const totalSubs = channel.statistics.subscriberCount
+
+        channelElement.innerHTML = `<h2>${channelTitle}</h2>`
+        const counter = new countUp.CountUp('subs-counter', totalSubs)
+
+        counter.start()
+
+        const duration = 15 * 1000,
+          animationEnd = Date.now() + duration,
+          defaults = {startVelocity: 30, spread: 360, ticks: 60, zIndex: 0};
+
+        function randomInRange(min, max) {
+          return Math.random() * (max - min) + min;
+        }
+
+        const interval = setInterval(function () {
+          const timeLeft = animationEnd - Date.now();
+
+          if (timeLeft <= 0) {
+            return clearInterval(interval);
+          }
+
+          const particleCount = 50 * (timeLeft / duration);
+
+          // since particles fall down, start a bit higher than random
+          confetti(
+            Object.assign({}, defaults, {
+              particleCount,
+              origin: {x: randomInRange(0.1, 0.3), y: Math.random() - 0.2},
+            })
+          );
+          confetti(
+            Object.assign({}, defaults, {
+              particleCount,
+              origin: {x: randomInRange(0.7, 0.9), y: Math.random() - 0.2},
+            })
+          );
+        }, 250);
+      })
+  </script>
+  <style>
+    body {
+      display: flex;
+      align-items: center;
+      justify-items: center;
+      flex-direction: column;
+      background-color: #363636;
+      color: #FFF;
+      font-family: Roboto;
+    }
+
+    h2 {
+      color: #C3352E;
+    }
+
+    img {
+      width: 10rem;
+    }
+
+    p {
+      font-size: 5rem;
+    }
+  </style>
+  <img src="https://upload.wikimedia.org/wikipedia/commons/e/ef/Youtube_logo.png" />
+  <div id="channel"></div>
+  <p id="subs-counter">0</p>
+</body>
+
+</html>
